@@ -37,6 +37,7 @@ meta.json    ... ゲームのメタ情報（プラットフォームが読み取
 1. ゲームが iframe として読み込まれる
 2. プラットフォームから `game_start` メッセージが届く → `GamePlazaSDK.init` のコールバックが発火
 3. ゲーム終了時に `sendResult()` または `sendClose()` を呼ぶ
+4. プラットフォーム側は受け取った結果をもとにトースト通知を表示し、iframe を閉じる
 
 #### API
 
@@ -53,18 +54,25 @@ GamePlazaSDK.init(({ gameType, players, localPlayer }) => {
 **`GamePlazaSDK.sendResult(winnerId, scores?)`** — ゲーム結果を送信（ゲーム終了）
 
 ```js
-GamePlazaSDK.sendResult(localPlayer.uuid, { score: 100 }); // 勝敗あり
-GamePlazaSDK.sendResult(null); // 引き分け
+GamePlazaSDK.sendResult(localPlayer.uuid, { score: 100 }); // 勝敗あり＋スコア送信
+GamePlazaSDK.sendResult(null); // 引き分け（スコアなし）
 ```
 
 - `winnerId`: `string | null` — 勝者の UUID。引き分けは `null`
 - `scores`: `Record<string, number>` — 任意のスコア情報（省略可）
+
+プラットフォーム側の挙動：
+- `winnerId` をもとに勝敗のトースト通知を表示する
+- `scores` は省略しても問題ない（送ればプラットフォーム側で将来的に利用される）
+- スコアを競うゲームの場合は `scores` に含めて送ると良い
 
 **`GamePlazaSDK.sendClose()`** — 結果なしでゲームを閉じる（キャンセル・中断時）
 
 ```js
 GamePlazaSDK.sendClose();
 ```
+
+プラットフォーム側は結果通知を出さずに iframe を閉じる。ゲームを途中でやめる場合に使う。
 
 #### プロパティ（init 後に参照可能）
 
@@ -114,7 +122,7 @@ README の仕様に従って、15パズルを作って。タイマー付きで�
 ```
 
 ```
-スネークゲームを実装して。制限時間60秒でスコアを競う形式で。
+このリポジトリのREADMEを読んで、スネークゲームを実装して。制限時間60秒でスコアを競う形式で。
 ```
 
 ゲームロジック以外（プラットフォーム連携・メッセージ通信）は AI が仕様書を見て実装するので、開発者はゲームの内容だけ考えれば OK。
