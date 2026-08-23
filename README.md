@@ -142,3 +142,5 @@ npx serve .
 ### デプロイ
 
 GitHub Pages など任意の静的ホスティングにデプロイし、プラットフォーム側の `game-config.ts` に URL を登録する。
+
+詳細手順: [docs/deploy-github-pages.md](docs/deploy-github-pages.md)
